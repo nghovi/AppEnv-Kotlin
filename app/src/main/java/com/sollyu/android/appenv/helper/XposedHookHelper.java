@@ -1,5 +1,7 @@
 package com.sollyu.android.appenv.helper;
 
+import android.util.Log;
+
 import java.util.HashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -60,6 +62,7 @@ public class XposedHookHelper {
             XposedBridge.hookAllMethods(XposedHelpers.findClass("android.os.SystemProperties", getLoadPackageParam().classLoader), "get", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Log.v(TAG, "handleLoadPackage "  + " ********* afterHoook-------------------------------- of course");
                     if (hashMap.containsKey(param.args[0].toString())) {
                         param.setResult(hashMap.get(param.args[0].toString()));
                     }

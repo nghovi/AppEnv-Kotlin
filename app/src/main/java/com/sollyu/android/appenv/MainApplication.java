@@ -1,6 +1,7 @@
 package com.sollyu.android.appenv;
 
 import android.app.Application;
+import android.os.StrictMode;
 
 import com.beardedhen.androidbootstrap.TypefaceProvider;
 import com.elvishew.xlog.LogConfiguration;
@@ -69,6 +70,9 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         } catch (Exception e) {
             MobclickAgent.reportError(this, e);
         }
+        StrictMode.enableDefaults();
+         StrictMode.ThreadPolicy policyRead = StrictMode.allowThreadDiskReads();
+        StrictMode.setThreadPolicy(policyRead);
     }
 
     public synchronized static MainApplication getInstance() {

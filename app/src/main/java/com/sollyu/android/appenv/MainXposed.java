@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -60,7 +61,10 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
 
             xSharedPreferences.reload();
 
-            final AppInfo packageAppInfo = JSON.toJavaObject(JSON.parseObject(xSharedPreferences.getString(loadPackageParam.packageName, "{}")), AppInfo.class);
+            Log.d(TAG, "handleLoadPackage: 22222212225555522" + "package name =====?????" + loadPackageParam.packageName);
+            String pakageApp = xSharedPreferences.getString("ALL", "{}");
+            Log.d(TAG, "handleLoadPackage: 22222212225555522" + "package Appp?????" + pakageApp);
+            final AppInfo packageAppInfo = JSON.toJavaObject(JSON.parseObject(pakageApp), AppInfo.class);
 
             // 当前应用是一个用户程序
             if (OtherHelper.getInstance().isUserAppllication(loadPackageParam.appInfo)) {
@@ -70,19 +74,21 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
             // 最后合并全部拦截配置
             packageAppInfo.merge(JSON.toJavaObject(JSON.parseObject(xSharedPreferences.getString(XposedSharedPreferencesHelper.KEY_ALL, "{}")), AppInfo.class));
 
-            // Log.d(TAG, "handleLoadPackage: " + packageAppInfo);
+            Log.d(TAG, "handleLoadPackage: " + packageAppInfo);
 
             // 拦截应用
             if (!OtherHelper.getInstance().isNull(packageAppInfo.buildManufacturer)) {
+                Log.d(TAG, "handleLoadPackage: 22222212225555522" + "buildManufacturer");
                 XposedHookHelper.getInstances(loadPackageParam).Build.MANUFACTURER(packageAppInfo.buildManufacturer);
                 XposedHookHelper.getInstances(loadPackageParam).Build.BRAND(packageAppInfo.buildManufacturer);
                 XposedHookHelper.getInstances(loadPackageParam).Build.PRODUCT(packageAppInfo.buildManufacturer);
             }
-            if (!OtherHelper.getInstance().isNull(packageAppInfo.buildModel)) {
+//            if (!OtherHelper.getInstance().isNull(packageAppInfo.buildModel)) {
+                Log.d(TAG, "handleLoadPackage: 22222222" + "buildModel");
                 XposedHookHelper.getInstances(loadPackageParam).Build.MODEL(packageAppInfo.buildModel);
                 XposedHookHelper.getInstances(loadPackageParam).Build.DEVICE(packageAppInfo.buildModel);
                 XposedHookHelper.getInstances(loadPackageParam).Build.HARDWARE(packageAppInfo.buildModel);
-            }
+//            }
             if (!OtherHelper.getInstance().isNull(packageAppInfo.buildSerial)) {
                 XposedHookHelper.getInstances(loadPackageParam).Build.SERIAL(packageAppInfo.buildSerial);
             }
@@ -150,9 +156,9 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
                         // 拦截语言
                         if (!TextUtils.isEmpty(packageAppInfo.systemLanguage)) {
                             String[] localeParts = packageAppInfo.systemLanguage.split("_", 3);
-                            String   language    = localeParts[0];
-                            String   region      = (localeParts.length >= 2) ? localeParts[1] : "";
-                            String   variant     = (localeParts.length >= 3) ? localeParts[2] : "";
+                            String language = localeParts[0];
+                            String region = (localeParts.length >= 2) ? localeParts[1] : "";
+                            String variant = (localeParts.length >= 3) ? localeParts[2] : "";
 
                             Locale locale = new Locale(language, region, variant);
                             Locale.setDefault(locale);
@@ -168,19 +174,18 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
                                 int v0 = Integer.parseInt(packageAppInfo.displayDip);
                                 DisplayMetrics displayMetrics;
 
-                                if(param.args[1] != null) {
+                                if (param.args[1] != null) {
                                     displayMetrics = new DisplayMetrics();
                                     displayMetrics.setTo((DisplayMetrics) param.args[1]);
                                     param.args[1] = displayMetrics;
-                                }
-                                else {
-                                    displayMetrics = ((Resources)param.thisObject).getDisplayMetrics();
+                                } else {
+                                    displayMetrics = ((Resources) param.thisObject).getDisplayMetrics();
                                 }
 
-                                if(v0 > 0) {
-                                    displayMetrics.density = (((float)v0)) / 160f;
+                                if (v0 > 0) {
+                                    displayMetrics.density = (((float) v0)) / 160f;
                                     displayMetrics.densityDpi = v0;
-                                    if(Build.VERSION.SDK_INT >= 17) {
+                                    if (Build.VERSION.SDK_INT >= 17) {
                                         XposedHelpers.setIntField(configuration, "densityDpi", v0);
                                     }
                                 }
@@ -197,6 +202,7 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
             XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Log.d(TAG, "handleLoadPackage: 222xxxzzzzzzz22222" + "buildManufacturer");
                     Activity activity = (Activity) param.thisObject;
                     Log.d(TAG, activity.getResources().getConfiguration().locale.getLanguage());
                     super.afterHookedMethod(param);
@@ -204,7 +210,7 @@ public class MainXposed implements IXposedHookLoadPackage, IXposedHookZygoteInit
             });
 
         } catch (Throwable throwable) {
-            Log.e(TAG, "handleLoadPackage: " + throwable.getLocalizedMessage(), throwable);
+
         }
     }
 
